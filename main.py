@@ -103,9 +103,9 @@ def criarAss():
 def visualizacao():
     global template, photo_x, photo_y, foto
 
-    photo_x = int(posicaoX.get())
-    photo_y = int(posicaoY.get())
-    zoomFoto = int(zoom.get())
+    photo_x = float(posicaoX.get())
+    photo_y = float(posicaoY.get())
+    zoomFoto = float(zoom.get())
 
     nome_arquivo = (re.sub(r'[^a-zA-Z0-9]', '', inputNome.get())).lower()
 
@@ -208,8 +208,8 @@ checkbutton.grid(row=6, columnspan=3)
 btnCriar.grid(row=7, columnspan=2, pady=10)
 visualizacao_label.grid(row=8, column=0, rowspan=7, columnspan=7 ,padx=10, pady=10)
 
-photo_x = int(posicaoX.get())
-photo_y = int(posicaoY.get())
+photo_x = float(posicaoX.get())
+photo_y = float(posicaoY.get())
 
 visualizacao()
 root.mainloop()

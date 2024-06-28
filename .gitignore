@@ -1,5 +1,4 @@
-Fotos/*.png
-Assinaturas/*.png
+.venv
 *.spec
 dist
 build
