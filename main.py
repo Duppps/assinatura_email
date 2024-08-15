@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 from pathlib import Path
 from tkinter import filedialog
 
+
 root = tk.Tk()
 root.minsize(920, 530)
 root.title("Main")
@@ -20,6 +21,8 @@ posicaoTelY = 250
 posFotoX = 93
 posFotoY = 60
 zoomFoto = 34
+photo_x = 0
+photo_y = 0
 
 checkLimparInputs = tk.BooleanVar()
 
@@ -59,7 +62,6 @@ def criarAss():
     funcaoFuncionario = inputfuncao.get()
     telefoneFuncionario = inputTelefone.get()
     nome_arquivo = (re.sub(r'[^a-zA-Z0-9]', '', nomeFuncionario)).lower()
-    zoomFoto = int(zoom.get())
 
     fontNome = ImageFont.truetype("Fonts/Montserrat-ExtraBold.ttf", tamanhoFonteNome)
     fontFuncao = ImageFont.truetype("Fonts/Montserrat-Medium.ttf", tamanhoFonteFuncao)
@@ -93,20 +95,21 @@ def criarAss():
         inputNome.delete(0, tk.END)
         inputfuncao.delete(0, tk.END)
         inputTelefone.delete(0, tk.END)
-        posicaoX.delete(0, "end")
-        posicaoX.insert(0, posFotoX)
-        posicaoY.delete(0, "end")
-        posicaoY.insert(0, posFotoY)
-        zoom.delete(0, "end")
-        zoom.insert(0, zoomFoto)
+        
+def drag_handler(event):
+    global photo_x, photo_y
+    photo_x = event.x
+    photo_y = event.y
+    visualizacao()
+    
+def image_mouse_drag_handler(event):
+    global zoomFoto
+    if(event.delta):
+        zoomFoto += -1 if event.delta < 0 else 1
+        visualizacao()
 
 def visualizacao():
-    global template, photo_x, photo_y, foto
-
-    photo_x = float(posicaoX.get())
-    photo_y = float(posicaoY.get())
-    zoomFoto = float(zoom.get())
-
+    global template, foto, photo_x, photo_y, zoomFoto
     nome_arquivo = (re.sub(r'[^a-zA-Z0-9]', '', inputNome.get())).lower()
 
     canvas = Image.new("RGBA", templateVis.size)
@@ -135,7 +138,6 @@ def visualizacao():
     visualizacao_label.config(image=preview)
     visualizacao_label.image = preview
 
-    root.after(50, visualizacao)
 
 def format_phone_number(event):
     cleaned = inputTelefone.get().replace('-', '').replace('(', '').replace(')', '').replace(' ', '')
@@ -167,21 +169,6 @@ inputTelefone = tk.Entry(frame_coluna_esquerda)
 
 sendFoto = tk.Button(frame_buttons_posicao, text="Enviar Foto", command=open_image)
 
-LabelPosicaoX = tk.Label(frame_buttons_posicao, text="X:")
-posicaoX = tk.Spinbox(frame_buttons_posicao, from_=-1000, to=1000, increment=1, width=5)
-posicaoX.delete(0, "end")
-posicaoX.insert(0, posFotoX)
-
-LabelPosicaoY = tk.Label(frame_buttons_posicao, text="Y:")
-posicaoY = tk.Spinbox(frame_buttons_posicao, from_=-1000, to=1000, increment=-1, width=5)
-posicaoY.delete(0, "end")
-posicaoY.insert(0, posFotoY)
-
-zoomLabel = tk.Label(frame_buttons_posicao, text="Zoom:")
-zoom = tk.Spinbox(frame_buttons_posicao, from_=0, to=100, increment=1, width=5)
-zoom.delete(0, "end")
-zoom.insert(0, zoomFoto)
-
 checkbutton = tk.Checkbutton(root, text="Limpar campos após envio?", variable=checkLimparInputs)
 
 btnCriar = tk.Button(root, text="Criar Assinatura", command=criarAss)
@@ -196,20 +183,12 @@ telefone.grid(row=2, column=0, sticky="e", padx=10, pady=10)
 inputTelefone.grid(row=2, column=1, sticky="w", padx=10, pady=10)
 
 sendFoto.grid(row=0, column=0, padx=10, pady=10)
-LabelPosicaoX.grid(row=0, column=1, sticky="e", pady=10, padx=10)
-posicaoX.grid(row=0, column=2,sticky="w", pady=10)
-LabelPosicaoY.grid(row=0, column=3, sticky="e", pady=10, padx=10)
-posicaoY.grid(row=0, column=4, sticky="w", pady=10)
-
-zoomLabel.grid(row=0, column=5, sticky="e", pady=10, padx=10)
-zoom.grid(row=0, column=6, sticky="w", pady=10)
 
 checkbutton.grid(row=6, columnspan=3)
 btnCriar.grid(row=7, columnspan=2, pady=10)
 visualizacao_label.grid(row=8, column=0, rowspan=7, columnspan=7 ,padx=10, pady=10)
-
-photo_x = float(posicaoX.get())
-photo_y = float(posicaoY.get())
+visualizacao_label.bind("<B1-Motion>", drag_handler)
+visualizacao_label.bind( "<MouseWheel>", image_mouse_drag_handler)
 
 visualizacao()
 root.mainloop()
